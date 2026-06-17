@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>闲鱼虚拟资料网盘发货检查器</title>
+  <meta name="description" content="免费开源的闲鱼虚拟资料网盘发货检查器，适合模板、教程、Excel、PPT、提示词和电子资料卖家在发链接前检查提取码、文件清单、补发规则、退款边界和订单记录字段。">
+  <link rel="canonical" href="https://ronnie2025.github.io/xianyu-netdisk-delivery-checker/">
+  <meta property="og:title" content="闲鱼虚拟资料网盘发货检查器">
+  <meta property="og:description" content="发网盘链接前检查提取码、文件清单、打开方式、补发规则、退款边界和订单记录字段。">
+  <meta property="og:url" content="https://ronnie2025.github.io/xianyu-netdisk-delivery-checker/">
+  <meta property="og:image" content="https://ronnie2025.github.io/xianyu-netdisk-delivery-checker/assets/netdisk-delivery-cover.webp">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "闲鱼虚拟资料网盘发货检查器",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": "用于闲鱼虚拟资料卖家在发送网盘链接或自动发货信息前检查链接、提取码、文件清单、售后边界和订单记录字段。",
+    "url": "https://ronnie2025.github.io/xianyu-netdisk-delivery-checker/",
+    "image": "https://ronnie2025.github.io/xianyu-netdisk-delivery-checker/assets/netdisk-delivery-cover.webp",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CNY",
+      "availability": "https://schema.org/InStock"
+    }
+  }
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #14211d;
+      --muted: #60736d;
+      --bg: #f6f8f5;
+      --panel: #ffffff;
+      --line: #d9e4dc;
+      --green: #0f4c3a;
+      --green-2: #0e7c5b;
+      --blue: #155eef;
+      --amber: #f2b84b;
+      --red: #c84636;
+      --soft: #edf5ef;
+      --shadow: 0 18px 46px rgba(20, 33, 29, .10);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.62;
+    }
+    a { color: inherit; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(14px);
+    }
+    .topbar-inner,
+    .wrap {
+      width: min(1160px, calc(100% - 36px));
+      margin: 0 auto;
+    }
+    .topbar-inner {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      color: var(--green);
+      font-weight: 900;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .nav a { text-decoration: none; }
+    .hero {
+      min-height: 620px;
+      display: grid;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(246,248,245,1) 0%, rgba(246,248,245,.94) 50%, rgba(246,248,245,.42) 100%),
+        url("assets/netdisk-delivery-cover.webp") right center / min(42vw, 520px) auto no-repeat;
+    }
+    .hero-copy { max-width: 750px; padding: 62px 0 80px; }
+    .eyebrow {
+      display: inline-flex;
+      padding: 7px 12px;
+      border: 1px solid rgba(242,184,75,.48);
+      border-radius: 999px;
+      background: rgba(242,184,75,.24);
+      color: #634200;
+      font-size: 14px;
+      font-weight: 850;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      margin: 16px 0 12px;
+      font-size: clamp(38px, 5vw, 64px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin-bottom: 16px;
+      font-size: 30px;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+    h3 { margin-bottom: 8px; font-size: 20px; }
+    .lead {
+      max-width: 700px;
+      color: var(--muted);
+      font-size: 19px;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .btn {
+      min-height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: #fff;
+      text-decoration: none;
+      font-weight: 850;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--green); color: #fff; }
+    .btn-blue { background: var(--blue); color: #fff; }
+    .btn-line { border-color: var(--line); color: var(--ink); }
+    main section {
+      padding: 54px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .tool-layout {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(360px, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+    .panel,
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+    .form-panel,
+    .result-panel,
+    .card { padding: 22px; }
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .field {
+      min-height: 104px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdfb;
+    }
+    .field.full { grid-column: 1 / -1; }
+    label {
+      display: block;
+      color: var(--green);
+      font-weight: 900;
+    }
+    .hint {
+      margin: 4px 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-width: 0;
+      min-height: 42px;
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      background: #fff;
+      font: inherit;
+    }
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+    .checks {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .check {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 750;
+    }
+    .check input { width: auto; min-height: auto; margin-top: 4px; }
+    .score-row {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .score {
+      width: 96px;
+      height: 96px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--green);
+      color: #fff;
+      font-size: 34px;
+      font-weight: 950;
+    }
+    .meter {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e5eee8;
+    }
+    .meter span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--amber), var(--green-2));
+      transition: width .2s ease;
+    }
+    .note { color: var(--muted); }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .pill {
+      padding: 6px 9px;
+      border: 1px solid #cfe1d6;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 850;
+    }
+    .script-block { margin-top: 18px; }
+    .copybox {
+      min-height: 98px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #101820;
+      color: #e7f6f2;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card p,
+    .card li { color: var(--muted); }
+    .card ul { margin: 10px 0 0; padding-left: 18px; }
+    .resource-list {
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      list-style: none;
+    }
+    .resource-list a {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      text-decoration: none;
+      font-weight: 850;
+    }
+    .resource-list span { color: var(--muted); font-weight: 700; }
+    .footer {
+      padding: 28px 0;
+      background: #10241d;
+      color: rgba(255,255,255,.78);
+    }
+    .footer .wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+    .footer a { text-decoration: none; }
+    .footer span { color: #fff; font-weight: 900; }
+    @media (max-width: 900px) {
+      .hero {
+        min-height: auto;
+        background:
+          linear-gradient(180deg, rgba(246,248,245,1) 0%, rgba(246,248,245,.96) 52%, rgba(246,248,245,.70) 100%),
+          url("assets/netdisk-delivery-cover.webp") center bottom / min(78vw, 360px) auto no-repeat;
+      }
+      .hero-copy { padding: 44px 0 250px; }
+      .tool-layout { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .score-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .topbar-inner { align-items: flex-start; flex-direction: column; padding: 12px 0; }
+      .field-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .hero-copy { padding-bottom: 230px; }
+      .actions .btn { width: 100%; }
+      .resource-list a { flex-direction: column; }
+      h1 { font-size: 38px; }
+      h2 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="./">Netdisk Delivery Checker</a>
+      <div class="nav">
+        <a href="#checker">检查器</a>
+        <a href="#workflow">流程</a>
+        <a href="#resources">资源</a>
+        <a href="https://github.com/Ronnie2025/xianyu-netdisk-delivery-checker">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="eyebrow">免费开源 / 浏览器端运行</span>
+        <h1>闲鱼虚拟资料网盘发货检查器</h1>
+        <p class="lead">卖模板、教程、PPT、Excel、提示词和资料包时，发链接前先检查提取码、文件清单、打开方式、无实物说明、补发规则、退款边界和订单记录字段。</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#checker">开始检查</a>
+          <a class="btn btn-line" href="xianyu-netdisk-delivery-checklist.md">打开 Markdown 清单</a>
+          <a class="btn btn-line" href="https://github.com/Ronnie2025/xianyu-netdisk-delivery-checker">查看源码</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="checker">
+      <div class="wrap tool-layout">
+        <div class="panel form-panel">
+          <h2>网盘发货前检查</h2>
+          <p class="note">把真实商品信息填进去，右侧会生成可复制的发货清单、买家说明、售后边界和订单记录字段。所有计算都在本地浏览器完成。</p>
+          <div class="field-grid">
+            <div class="field">
+              <label for="productName">商品名</label>
+              <p class="hint">写买家拍下时看到的名称。</p>
+              <input id="productName" value="副业小店记账表 Excel模板包">
+            </div>
+            <div class="field">
+              <label for="price">成交价</label>
+              <p class="hint">用于生成订单记录字段。</p>
+              <input id="price" type="number" min="0" step="0.01" value="19.90">
+            </div>
+            <div class="field">
+              <label for="deliveryMode">交付方式</label>
+              <p class="hint">不要只写自动发货，要说清拿到什么。</p>
+              <select id="deliveryMode">
+                <option value="网盘链接和提取码">网盘链接和提取码</option>
+                <option value="平台聊天内文件附件">平台聊天内文件附件</option>
+                <option value="ZIP 压缩包下载说明">ZIP 压缩包下载说明</option>
+                <option value="自动发货工具发送的下载信息">自动发货工具发送的下载信息</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="linkStatus">链接状态</label>
+              <p class="hint">临时链接和过期链接最容易造成售后。</p>
+              <select id="linkStatus">
+                <option value="已测试可打开，提取码正确">已测试可打开，提取码正确</option>
+                <option value="链接可打开，但还没二次测试">链接可打开，但还没二次测试</option>
+                <option value="链接有时效，需要写清过期处理">链接有时效，需要写清过期处理</option>
+                <option value="还没检查提取码和权限">还没检查提取码和权限</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="openTool">打开方式</label>
+              <p class="hint">买家要知道手机还是电脑更合适。</p>
+              <select id="openTool">
+                <option value="Excel 或 WPS 可打开">Excel 或 WPS 可打开</option>
+                <option value="PDF 阅读器可打开">PDF 阅读器可打开</option>
+                <option value="需要解压软件后再打开">需要解压软件后再打开</option>
+                <option value="建议电脑端下载和整理">建议电脑端下载和整理</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="deliveryWindow">承诺时效</label>
+              <p class="hint">只写能稳定做到的时效。</p>
+              <select id="deliveryWindow">
+                <option value="拍下后 1 小时内">拍下后 1 小时内</option>
+                <option value="当天 24 点前">当天 24 点前</option>
+                <option value="24 小时内">24 小时内</option>
+                <option value="自动发货后立即查看聊天信息">自动发货后立即查看聊天信息</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="fileList">文件清单</label>
+              <p class="hint">买家收到后要能逐项核对。</p>
+              <textarea id="fileList">Excel 工作簿、CSV 样张、Dashboard 预览图、字段说明、发货话术、上架文案和周复盘模板</textarea>
+            </div>
+          </div>
+
+          <div class="checks">
+            <label class="check">
+              <input id="platformRecord" type="checkbox" checked>
+              <span>付款、链接、提取码、补发和售后都尽量留在闲鱼平台聊天内。</span>
+            </label>
+            <label class="check">
+              <input id="noPhysical" type="checkbox" checked>
+              <span>已写清这是电子资料，无实物邮寄，不需要快递。</span>
+            </label>
+            <label class="check">
+              <input id="backupLink" type="checkbox" checked>
+              <span>已准备备用链接或补发方式，链接失效、漏发、文件损坏时可处理。</span>
+            </label>
+            <label class="check">
+              <input id="refundRule" type="checkbox" checked>
+              <span>已写清未发货、已发货、链接失效和文件损坏时的处理边界。</span>
+            </label>
+            <label class="check">
+              <input id="noPromise" type="checkbox" checked>
+              <span>不承诺涨粉、成交、审核通过、收入、回本或任何经营结果。</span>
+            </label>
+            <label class="check">
+              <input id="ledgerRecord" type="checkbox" checked>
+              <span>发货后会记录订单号、成交价、平台费、资料成本、售后问题和退款原因。</span>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" id="refresh" type="button">刷新检查结果</button>
+            <button class="btn btn-line" id="copyChecklist" type="button">复制检查清单</button>
+          </div>
+        </div>
+
+        <aside class="panel result-panel">
+          <div class="score-row">
+            <div class="score" id="score">--</div>
+            <div>
+              <h2 id="scoreLabel">发货安全度</h2>
+              <p class="note" id="scoreHint"></p>
+              <div class="meter"><span id="meter"></span></div>
+              <div class="pill-row" id="pillRow"></div>
+            </div>
+          </div>
+
+          <div class="script-block">
+            <h3>发货前自查清单</h3>
+            <div class="copybox" id="checklist"></div>
+          </div>
+          <div class="script-block">
+            <h3>给买家的网盘说明</h3>
+            <div class="copybox" id="buyerMessage"></div>
+          </div>
+          <div class="script-block">
+            <h3>售后和退款边界</h3>
+            <div class="copybox" id="riskMessage"></div>
+          </div>
+          <div class="script-block">
+            <h3>订单记录字段</h3>
+            <div class="copybox" id="ledgerLine"></div>
+          </div>
+
+          <div class="actions">
+            <a class="btn btn-blue" id="downloadChecklist" href="#" download="xianyu-netdisk-delivery-checklist.md">下载检查清单</a>
+            <a class="btn btn-line" href="https://www.goofish.com/item?id=1057975295736" target="_blank" rel="noopener">相关记账表</a>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="workflow">
+      <div class="wrap">
+        <h2>适合低价虚拟资料卖家的三步流程</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>发出前</h3>
+            <p>检查链接、提取码、权限、文件名、版本号和打开方式。不要让买家收到一串无法判断内容的链接。</p>
+          </div>
+          <div class="card">
+            <h3>发出时</h3>
+            <p>在平台聊天内说明无实物邮寄、资料清单、补发方式和售后边界。不要承诺涨粉、成交、收入或回本。</p>
+          </div>
+          <div class="card">
+            <h3>发出后</h3>
+            <p>记录订单号、成交价、平台费、资料成本、售后问题和退款原因。自动发货不能替代经营复盘。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="resources">
+      <div class="wrap">
+        <h2>公开资源</h2>
+        <ul class="resource-list">
+          <li><a href="xianyu-netdisk-delivery-checklist.md">Markdown 发货检查清单 <span>免费</span></a></li>
+          <li><a href="https://github.com/Ronnie2025/xianyu-netdisk-delivery-checker">GitHub 源码仓库 <span>MIT</span></a></li>
+          <li><a href="https://ronnie2025.github.io/ai-agent-workbench-starter-pack/xianyu-ledger-sample.html">订单记账表免费样张 <span>外部资源</span></a></li>
+          <li><a href="https://www.goofish.com/item?id=1057975295736" target="_blank" rel="noopener">完整 Excel 记账表模板包 <span>19.90 元</span></a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <span>Netdisk Delivery Checker</span>
+      <a href="#checker">检查器</a>
+      <a href="xianyu-netdisk-delivery-checklist.md">Markdown 清单</a>
+      <a href="https://github.com/Ronnie2025/xianyu-netdisk-delivery-checker">GitHub</a>
+    </div>
+  </footer>
+
+  <script>
+    const fieldIds = [
+      "productName", "price", "deliveryMode", "linkStatus", "openTool", "deliveryWindow", "fileList",
+      "platformRecord", "noPhysical", "backupLink", "refundRule", "noPromise", "ledgerRecord"
+    ];
+    const $ = (id) => document.getElementById(id);
+    const money = (value) => "¥" + Number(value || 0).toFixed(2);
+
+    function readState() {
+      return {
+        productName: $("productName").value.trim() || "虚拟资料包",
+        price: Number($("price").value || 0),
+        deliveryMode: $("deliveryMode").value,
+        linkStatus: $("linkStatus").value,
+        openTool: $("openTool").value,
+        deliveryWindow: $("deliveryWindow").value,
+        fileList: $("fileList").value.trim() || "资料文件和使用说明",
+        platformRecord: $("platformRecord").checked,
+        noPhysical: $("noPhysical").checked,
+        backupLink: $("backupLink").checked,
+        refundRule: $("refundRule").checked,
+        noPromise: $("noPromise").checked,
+        ledgerRecord: $("ledgerRecord").checked
+      };
+    }
+
+    function checkLine(yes, text) {
+      return `${yes ? "[x]" : "[ ]"} ${text}`;
+    }
+
+    function render() {
+      const s = readState();
+      let score = 26;
+      score += s.platformRecord ? 14 : -18;
+      score += s.noPhysical ? 12 : -14;
+      score += s.backupLink ? 14 : -16;
+      score += s.refundRule ? 14 : -16;
+      score += s.noPromise ? 12 : -14;
+      score += s.ledgerRecord ? 12 : -8;
+      if (s.linkStatus.includes("已测试")) score += 8;
+      if (s.linkStatus.includes("时效") || s.linkStatus.includes("还没")) score -= 8;
+      if (s.fileList.length > 24) score += 6;
+      score = Math.max(12, Math.min(98, score));
+
+      const label = score >= 86 ? "可以发货" : score >= 66 ? "先补两项" : "先别发链接";
+      const hint = score >= 86
+        ? "链接、边界和订单记录已经比较完整，发出后记得登记售后问题。"
+        : "优先补平台内留痕、备用链接、退款边界和不承诺结果，再把链接发给买家。";
+
+      $("score").textContent = score;
+      $("scoreLabel").textContent = label;
+      $("scoreHint").textContent = hint;
+      $("meter").style.width = score + "%";
+      $("pillRow").innerHTML = [
+        s.deliveryMode,
+        s.linkStatus,
+        s.openTool,
+        s.deliveryWindow
+      ].map((item) => `<span class="pill">${item}</span>`).join("");
+
+      const checklist = [
+        `# ${s.productName} 网盘发货检查清单`,
+        "",
+        `- 商品：${s.productName}`,
+        `- 成交价：${money(s.price)}`,
+        `- 交付方式：${s.deliveryMode}`,
+        `- 链接状态：${s.linkStatus}`,
+        `- 打开方式：${s.openTool}`,
+        `- 发货时效：${s.deliveryWindow}`,
+        `- 文件清单：${s.fileList}`,
+        "",
+        "## 发货前",
+        checkLine(s.platformRecord, "付款、链接、提取码、补发和售后保留在闲鱼平台聊天内"),
+        checkLine(s.noPhysical, "写清电子资料无实物邮寄，不需要快递"),
+        checkLine(s.backupLink, "准备备用链接或补发方式"),
+        checkLine(s.refundRule, "写清未发货、已发货、链接失效和文件损坏的处理边界"),
+        checkLine(s.noPromise, "不承诺涨粉、成交、审核通过、收入、回本或经营结果"),
+        checkLine(s.ledgerRecord, "记录订单号、成交价、平台费、资料成本、售后问题和退款原因")
+      ].join("\n");
+
+      $("checklist").textContent = checklist;
+      $("buyerMessage").textContent = `你好，已收到你拍下的《${s.productName}》。\n\n本商品为电子资料，无实物邮寄。资料会按「${s.deliveryMode}」交付，预计${s.deliveryWindow}完成。\n\n请按聊天内的下载说明操作：${s.linkStatus}。\n打开方式：${s.openTool}。\n包含内容：${s.fileList}。\n\n如果链接失效、提取码错误、文件损坏或发现漏发，请直接在闲鱼聊天里发截图和文件名，我会按订单记录核对补发。`;
+      $("riskMessage").textContent = `售后边界：未发货前可以在平台内协商取消；资料、链接或提取码发出后，不支持无理由退款。链接失效、文件损坏、漏发或无法下载，可以在闲鱼聊天内核对后补发。\n\n《${s.productName}》交付的是资料、模板和说明，不承诺涨粉、成交、审核通过、收入、回本或任何经营结果；具体处理以平台规则和订单状态为准。`;
+      $("ledgerLine").textContent = `订单登记：日期｜闲鱼订单号｜商品：${s.productName}｜成交价：${money(s.price)}｜交付方式：${s.deliveryMode}｜链接状态：${s.linkStatus}｜平台费｜资料成本｜发货时间：${s.deliveryWindow}｜售后问题｜退款原因｜本周复盘动作。`;
+
+      const blob = new Blob([`\ufeff${checklist}\n`], { type: "text/markdown;charset=utf-8" });
+      const link = $("downloadChecklist");
+      if (link.dataset.url) URL.revokeObjectURL(link.dataset.url);
+      link.dataset.url = URL.createObjectURL(blob);
+      link.href = link.dataset.url;
+    }
+
+    fieldIds.forEach((id) => {
+      const el = $(id);
+      if (!el) return;
+      el.addEventListener("input", render);
+      el.addEventListener("change", render);
+    });
+    $("refresh").addEventListener("click", render);
+    $("copyChecklist").addEventListener("click", async () => {
+      const text = $("checklist").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        $("copyChecklist").textContent = "已复制";
+        setTimeout(() => { $("copyChecklist").textContent = "复制检查清单"; }, 1200);
+      } catch (error) {
+        $("copyChecklist").textContent = "请手动复制";
+      }
+    });
+    render();
+  </script>
+</body>
+</html>
