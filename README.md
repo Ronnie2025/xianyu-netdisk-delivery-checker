@@ -23,6 +23,7 @@ https://ronnie2025.github.io/xianyu-netdisk-delivery-checker/
 - 给买家的网盘说明
 - 售后和退款边界
 - 订单记录字段
+- 单笔订单 CSV
 - 可下载的 Markdown 检查清单
 
 ## 本地使用

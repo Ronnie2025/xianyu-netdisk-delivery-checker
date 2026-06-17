@@ -6,6 +6,7 @@
   <title>闲鱼虚拟资料网盘发货检查器</title>
   <meta name="description" content="免费开源的闲鱼虚拟资料网盘发货检查器，适合模板、教程、Excel、PPT、提示词和电子资料卖家在发链接前检查提取码、文件清单、补发规则、退款边界和订单记录字段。">
   <link rel="canonical" href="https://ronnie2025.github.io/xianyu-netdisk-delivery-checker/">
+  <link rel="icon" href="assets/netdisk-delivery-cover.webp">
   <meta property="og:title" content="闲鱼虚拟资料网盘发货检查器">
   <meta property="og:description" content="发网盘链接前检查提取码、文件清单、打开方式、补发规则、退款边界和订单记录字段。">
   <meta property="og:url" content="https://ronnie2025.github.io/xianyu-netdisk-delivery-checker/">
@@ -505,6 +506,9 @@
 
           <div class="actions">
             <a class="btn btn-blue" id="downloadChecklist" href="#" download="xianyu-netdisk-delivery-checklist.md">下载检查清单</a>
+            <a class="btn btn-blue" id="downloadOrderCsv" href="#" download="xianyu-order-record.csv">下载订单 CSV</a>
+            <button class="btn btn-line" id="copyBuyerMessage" type="button">复制买家说明</button>
+            <button class="btn btn-line" id="copyRiskMessage" type="button">复制售后边界</button>
             <a class="btn btn-line" href="https://www.goofish.com/item?id=1057975295736" target="_blank" rel="noopener">相关记账表</a>
           </div>
         </aside>
@@ -560,6 +564,12 @@
     ];
     const $ = (id) => document.getElementById(id);
     const money = (value) => "¥" + Number(value || 0).toFixed(2);
+    const makeLocalDate = () => {
+      const now = new Date();
+      const pad = (value) => String(value).padStart(2, "0");
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    };
+    const csvCell = (value) => `"${String(value ?? "").replaceAll('"', '""')}"`;
 
     function readState() {
       return {
@@ -643,6 +653,21 @@
       if (link.dataset.url) URL.revokeObjectURL(link.dataset.url);
       link.dataset.url = URL.createObjectURL(blob);
       link.href = link.dataset.url;
+
+      const csvHeader = [
+        "日期", "闲鱼订单号", "商品名", "成交价", "平台费", "资料成本", "交付方式",
+        "链接状态", "发货时效", "售后问题", "退款原因", "本周复盘动作"
+      ];
+      const csvRow = [
+        makeLocalDate(), "", s.productName, s.price.toFixed(2), "", "", s.deliveryMode,
+        s.linkStatus, s.deliveryWindow, "", "", `发货检查分数 ${score}，${label}`
+      ];
+      const csvText = `\ufeff${csvHeader.map(csvCell).join(",")}\n${csvRow.map(csvCell).join(",")}\n`;
+      const csvBlob = new Blob([csvText], { type: "text/csv;charset=utf-8" });
+      const csvLink = $("downloadOrderCsv");
+      if (csvLink.dataset.url) URL.revokeObjectURL(csvLink.dataset.url);
+      csvLink.dataset.url = URL.createObjectURL(csvBlob);
+      csvLink.href = csvLink.dataset.url;
     }
 
     fieldIds.forEach((id) => {
@@ -660,6 +685,24 @@
         setTimeout(() => { $("copyChecklist").textContent = "复制检查清单"; }, 1200);
       } catch (error) {
         $("copyChecklist").textContent = "请手动复制";
+      }
+    });
+    $("copyBuyerMessage").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText($("buyerMessage").textContent);
+        $("copyBuyerMessage").textContent = "已复制";
+        setTimeout(() => { $("copyBuyerMessage").textContent = "复制买家说明"; }, 1200);
+      } catch (error) {
+        $("copyBuyerMessage").textContent = "请手动复制";
+      }
+    });
+    $("copyRiskMessage").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText($("riskMessage").textContent);
+        $("copyRiskMessage").textContent = "已复制";
+        setTimeout(() => { $("copyRiskMessage").textContent = "复制售后边界"; }, 1200);
+      } catch (error) {
+        $("copyRiskMessage").textContent = "请手动复制";
       }
     });
     render();
